@@ -1683,7 +1683,8 @@ BOOST_FIXTURE_TEST_CASE(voter_pay_gstate_consistency, eosio_system_tester, * boo
 
 BOOST_FIXTURE_TEST_CASE(voter_pay, eosio_system_tester, * boost::unit_test::tolerance(1e-10)) try {
 
-   const double continuous_rate = std::log1p(double(0.05));
+   // const double continuous_rate = std::log1p(double(0.05));
+   const double continuous_rate = 0.04879;
    const double usecs_per_year  = 52 * 7 * 24 * 3600 * 1000000ll;
    const double secs_per_year   = 52 * 7 * 24 * 3600;
 
@@ -3731,6 +3732,17 @@ BOOST_FIXTURE_TEST_CASE(producers_upgrade_system_contract, eosio_system_tester) 
 
          return base_tester::push_action( std::move(act), (auth ? signer : signer == "bob111111111"_n ? "alice1111111"_n : "bob111111111"_n).to_uint64_t() );
    };
+
+   auto push_action_msig_trace = [&]( const account_name& signer, const action_name& name, const variant_object& data, bool auth = true ) -> transaction_trace_ptr {
+       vector<account_name> accounts;
+       if( auth )
+          accounts.push_back( signer );
+       auto trace = base_tester::push_action( "eosio.msig"_n, name, accounts, data );
+       produce_block();
+       BOOST_REQUIRE_EQUAL( true, chain_has_transaction(trace->id) );
+       return trace;
+   };
+
    // test begins
    vector<permission_level> prod_perms;
    for ( auto& x : producer_names ) {
@@ -3804,23 +3816,13 @@ BOOST_FIXTURE_TEST_CASE(producers_upgrade_system_contract, eosio_system_tester) 
                           )
    );
 
-   transaction_trace_ptr trace;
-   control->applied_transaction.connect(
-   [&]( std::tuple<const transaction_trace_ptr&, const packed_transaction_ptr&> p ) {
-      const auto& t = std::get<0>(p);
-      if( t->scheduled ) { trace = t; }
-   } );
-
-   BOOST_REQUIRE_EQUAL(success(), push_action_msig( "alice1111111"_n, "exec"_n, mvo()
+   auto r = push_action_msig_trace( "alice1111111"_n, "exec"_n, mvo()
                                                     ("proposer",      "alice1111111")
                                                     ("proposal_name", "upgrade1")
-                                                    ("executer",      "alice1111111")
-                       )
-   );
+                                                    ("executer",      "alice1111111"));
 
-   BOOST_REQUIRE( bool(trace) );
-   BOOST_REQUIRE_EQUAL( 1, trace->action_traces.size() );
-   BOOST_REQUIRE_EQUAL( transaction_receipt::executed, trace->receipt->status );
+   BOOST_REQUIRE_EQUAL( 2, r->action_traces.size() );
+   BOOST_REQUIRE_EQUAL( transaction_receipt::executed, r->receipt->status );
 
    produce_blocks( 250 );
 
@@ -4915,6 +4917,16 @@ BOOST_FIXTURE_TEST_CASE( setparams, eosio_system_tester ) try {
          return base_tester::push_action( std::move(act), (auth ? signer : signer == "bob111111111"_n ? "alice1111111"_n : "bob111111111"_n).to_uint64_t() );
    };
 
+   auto push_action_msig_trace = [&]( const account_name& signer, const action_name& name, const variant_object& data, bool auth = true ) -> transaction_trace_ptr {
+      vector<account_name> accounts;
+      if( auth )
+         accounts.push_back( signer );
+      auto trace = base_tester::push_action( "eosio.msig"_n, name, accounts, data );
+      produce_block();
+      BOOST_REQUIRE_EQUAL( true, chain_has_transaction(trace->id) );
+      return trace;
+   };
+
    // test begins
    vector<permission_level> prod_perms;
    for ( auto& x : producer_names ) {
@@ -4967,23 +4979,13 @@ BOOST_FIXTURE_TEST_CASE( setparams, eosio_system_tester ) try {
       );
    }
 
-   transaction_trace_ptr trace;
-   control->applied_transaction.connect(
-   [&]( std::tuple<const transaction_trace_ptr&, const packed_transaction_ptr&> p ) {
-      const auto& t = std::get<0>(p);
-      if( t->scheduled ) { trace = t; }
-   } );
+   auto r = push_action_msig_trace( "alice1111111"_n, "exec"_n, mvo()
+                                  ("proposer",      "alice1111111")
+                                  ("proposal_name", "setparams1")
+                                  ("executer",      "alice1111111"));
 
-   BOOST_REQUIRE_EQUAL(success(), push_action_msig( "alice1111111"_n, "exec"_n, mvo()
-                                                    ("proposer",      "alice1111111")
-                                                    ("proposal_name", "setparams1")
-                                                    ("executer",      "alice1111111")
-                       )
-   );
-
-   BOOST_REQUIRE( bool(trace) );
-   BOOST_REQUIRE_EQUAL( 1, trace->action_traces.size() );
-   BOOST_REQUIRE_EQUAL( transaction_receipt::executed, trace->receipt->status );
+   BOOST_REQUIRE_EQUAL( 2, r->action_traces.size() );
+   BOOST_REQUIRE_EQUAL( transaction_receipt::executed, r->receipt->status );
 
    produce_blocks( 250 );
 
@@ -5010,6 +5012,16 @@ BOOST_FIXTURE_TEST_CASE( wasmcfg, eosio_system_tester ) try {
          act.data = msig_abi_ser.variant_to_binary( action_type_name, data, abi_serializer::create_yield_function(abi_serializer_max_time) );
 
          return base_tester::push_action( std::move(act), (auth ? signer : signer == "bob111111111"_n ? "alice1111111"_n : "bob111111111"_n).to_uint64_t() );
+   };
+
+   auto push_action_msig_trace = [&]( const account_name& signer, const action_name& name, const variant_object& data, bool auth = true ) -> transaction_trace_ptr {
+       vector<account_name> accounts;
+       if( auth )
+          accounts.push_back( signer );
+       auto trace = base_tester::push_action( "eosio.msig"_n, name, accounts, data );
+       produce_block();
+       BOOST_REQUIRE_EQUAL( true, chain_has_transaction(trace->id) );
+       return trace;
    };
 
    // test begins
@@ -5058,23 +5070,13 @@ BOOST_FIXTURE_TEST_CASE( wasmcfg, eosio_system_tester ) try {
       );
    }
 
-   transaction_trace_ptr trace;
-   control->applied_transaction.connect(
-   [&]( std::tuple<const transaction_trace_ptr&, const packed_transaction_ptr&> p ) {
-      const auto& t = std::get<0>(p);
-      if( t->scheduled ) { trace = t; }
-   } );
-
-   BOOST_REQUIRE_EQUAL(success(), push_action_msig( "alice1111111"_n, "exec"_n, mvo()
+   auto r = push_action_msig_trace( "alice1111111"_n, "exec"_n, mvo()
                                                     ("proposer",      "alice1111111")
                                                     ("proposal_name", "setparams1")
-                                                    ("executer",      "alice1111111")
-                       )
-   );
+                                                    ("executer",      "alice1111111"));
 
-   BOOST_REQUIRE( bool(trace) );
-   BOOST_REQUIRE_EQUAL( 1, trace->action_traces.size() );
-   BOOST_REQUIRE_EQUAL( transaction_receipt::executed, trace->receipt->status );
+   BOOST_REQUIRE_EQUAL( 2, r->action_traces.size() );
+   BOOST_REQUIRE_EQUAL( transaction_receipt::executed, r->receipt->status );
 
    produce_blocks( 250 );
 

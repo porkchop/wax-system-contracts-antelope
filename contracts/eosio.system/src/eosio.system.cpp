@@ -47,7 +47,7 @@ namespace eosiosystem {
 
    eosio_global_state4 system_contract::get_default_inflation_parameters() {
       eosio_global_state4 gs4;
-      gs4.continuous_rate      = get_continuous_rate(default_annual_rate);
+      gs4.continuous_rate      = continuous_rate;
       gs4.inflation_pay_factor = default_inflation_pay_factor;
       gs4.votepay_factor       = default_votepay_factor;
       return gs4;
