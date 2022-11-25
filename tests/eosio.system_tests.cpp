@@ -2230,6 +2230,7 @@ BOOST_FIXTURE_TEST_CASE(gbm_burns_on_immature_balance, eosio_system_tester, * bo
 } FC_LOG_AND_RETHROW()
 
 BOOST_FIXTURE_TEST_CASE(gbm_does_not_burn_matured_balance, eosio_system_tester, * boost::unit_test::tolerance(1e-5)) try {
+   // BOOST_REQUIRE_EQUAL(time_point_sec( control->head_block_time() ).sec_since_epoch(), 10);
    cross_15_percent_threshold();
 
    create_account_with_resources("user11111111"_n, config::system_account_name, core_sym::from_string("100.0000"), false, core_sym::from_string("10.0000"), core_sym::from_string("10.0000"));

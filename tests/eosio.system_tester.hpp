@@ -759,7 +759,8 @@ public:
       uint32_t seconds_per_day       = 24 * 3600;
       int64_t  useconds_per_day      = int64_t(seconds_per_day) * 1000'000ll;
       uint64_t useconds_in_gbm_period = 1096 * useconds_per_day;   // from July 1st 2019 to July 1st 2022
-      time_point gbm_initial_time(seconds(1561939200));     // July 1st 2019 00:00:00
+      // time_point gbm_initial_time(seconds(1561939200));     // July 1st 2019 00:00:00
+      time_point gbm_initial_time(seconds(1561939200+365*24*60*60*0+15984000));     // July 1st 2019 00:00:00
       time_point gbm_final_time = gbm_initial_time + microseconds(useconds_in_gbm_period);
       const auto unstake_time = std::min(control->head_block_time(), gbm_final_time);
       const int64_t delta_time_usec = (gbm_final_time - unstake_time).count();
