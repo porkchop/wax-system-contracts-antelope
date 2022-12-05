@@ -1,7 +1,9 @@
-LEAP_VERSION ?= v3.1.0
-CDT_VERSION ?= v3.0.1
+# LEAP_VERSION ?= v3.1.0
+# LEAP_REPO = https://github.com/AntelopeIO/leap.git
+LEAP_VERSION ?= v3.1.0-wax1
+LEAP_REPO = https://github.com/porkchop/leap.git
 
-LEAP_REPO = https://github.com/AntelopeIO/leap.git
+CDT_VERSION ?= v3.0.1
 CDT_REPO = https://github.com/AntelopeIO/cdt.git
 
 DEPS_DIR=./tmp
